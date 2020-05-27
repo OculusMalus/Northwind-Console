@@ -37,6 +37,7 @@ namespace NorthwindConsole.Models
             product.CategoryId = UpdatedProduct.CategoryId;
             product.SupplierId = UpdatedProduct.SupplierId;
             product.Discontinued = UpdatedProduct.Discontinued;
+            SaveChanges();
         }
     }
     

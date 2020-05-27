@@ -24,29 +24,22 @@ namespace NorthwindConsole
                     Console.WriteLine("4) Display all Categories and their related products");
                     Console.WriteLine("5) Add a new product");
                     Console.WriteLine("6) Edit a product");
+                    Console.WriteLine("7) Display all products");
+                    Console.WriteLine("8) Display a single product");
                     Console.WriteLine("\"q\" to quit");
                     choice = Console.ReadLine();
                     Console.Clear();
                     logger.Info($"Option {choice} selected");
                     if (choice == "1")
                     {
-                        var db = new NorthwindContext();
-                        var query = db.Categories.OrderBy(p => p.CategoryName);
-
-                        Console.WriteLine($"{query.Count()} records returned");
-                        foreach (var item in query)
-                        {
-                           Console.WriteLine($"{item.CategoryName} - {item.Description}");
-                        }
+                        Category.ListCategories();
                     }
                     else if (choice == "2")
                     {
                         Category category = new Category();
                         Console.WriteLine("Enter Category Name:");
                         category.CategoryName = Console.ReadLine();
-                        Console.WriteLine("Enter the Category Description:");
-                        category.Description = Console.ReadLine();
-
+                        
                         ValidationContext context = new ValidationContext(category, null, null);
                         List<ValidationResult> results = new List<ValidationResult>();
 
@@ -63,8 +56,11 @@ namespace NorthwindConsole
                             }
                             else
                             {
+                                Console.WriteLine("Enter the Category Description:");
+                                category.Description = Console.ReadLine();
                                 logger.Info("Validation passed");
-                                // TODO: save category to db
+                                db.AddCategory(category);
+                                logger.Info("Category added - {title}", category.CategoryName);
                             }
                         }
                         if (!isValid)
@@ -147,25 +143,13 @@ namespace NorthwindConsole
                                             logger.Info("Product added - {title}", product.ProductName);
                                         }
                                     }
-                                    else
-                                    {
-                                        logger.Error("There are no Suppliers with that Id");
-                                    }
+                                    else logger.Error("There are no Suppliers with that Id"); 
                                 }
-                                else
-                                {
-                                    logger.Error("Invalid Supplier Id");
-                                }
+                                else logger.Error("Invalid Supplier Id");
                             }
-                            else
-                            {
-                                logger.Error("There are no Categories with that Id");
-                            }
+                            else logger.Error("There are no Categories with that Id");
                         }
-                        else
-                        {
-                            logger.Error("Invalid Category Id");
-                        }
+                        else logger.Error("Invalid Category Id");                     
 
                     }
                     else if (choice == "6")
@@ -186,7 +170,7 @@ namespace NorthwindConsole
                                 logger.Info($"CategoryId {CategoryId} selected");
                                 Console.Clear();
                                 Console.WriteLine("Select the product number you wish to edit:");
-                                Console.WriteLine($"CategoryId {CategoryId} selected");
+                                logger.Info($"CategoryId {CategoryId} selected");
                                 var productList = db.Products.Where(pl => pl.CategoryId == CategoryId).OrderBy(pl => pl.ProductId);
 
                                 foreach (var item in productList)
@@ -194,7 +178,7 @@ namespace NorthwindConsole
                                     Console.WriteLine($"{item.ProductId}) {item.ProductName}");
                                 }
 
-                                //check for valid category
+                                //check for valid product id
                                 if (int.TryParse(Console.ReadLine(), out int ProductId))
                                 {
                                     if (db.Products.Any(p => p.ProductId == ProductId))
@@ -206,17 +190,112 @@ namespace NorthwindConsole
                                 }
 
                             }
-                        }
-
-                                
+                        }                             
 
                         
-                        //Category category = db.Categories.FirstOrDefault(c => c.CategoryId == id);
-                        //Console.WriteLine($"{category.CategoryName} - {category.Description}");
-                        //foreach (Product p in category.Products)
-                        //{
-                        //   Console.WriteLine($"{p.ProductId}) {p.ProductName}");
-                        //}
+                        
+                    }
+                    else if (choice == "7")
+                    {
+                        string displayChoice;
+                        do
+                        {
+                            Console.Clear();
+                            Console.WriteLine("1) Display ALL products");
+                            Console.WriteLine("2) Display only DISCONTINUED products");
+                            Console.WriteLine("3) Display only ACTIVE products");
+                            displayChoice = Console.ReadLine();
+                            
+                            if (displayChoice == "1")
+                            {
+                            //TODO 
+                            }
+
+                            if (displayChoice == "2")
+                            {
+                                //TODO filter product list
+                            }
+
+                            if (displayChoice == "3")
+                            {
+                                //TODO
+                            }
+                        }
+                        while (displayChoice.ToLower() != "q"); 
+                        
+                        
+
+                    }
+
+                    else if (choice == "8")
+                    {
+                        string searchTerm;
+                        string displayChoice;
+                        var db = new NorthwindContext();
+
+                        Console.Clear();
+                        Console.WriteLine("Chose how you wish to select a product:");
+                        Console.WriteLine("1) Enter Product Id");
+                        Console.WriteLine("2) Search for product name");
+
+                        displayChoice = Console.ReadLine();
+                        if (displayChoice == "1")
+                        {
+                            Console.WriteLine("Enter the Id number of the product you wish to display");
+                            if (int.TryParse(Console.ReadLine(), out int productId))
+                            {
+                                if (db.Products.Any(p => p.ProductId == productId))
+                                {
+                                    Console.Clear();
+                                    Product.DisplayProduct(db.Products.FirstOrDefault(p => p.ProductId == productId));
+                                }
+                                else logger.Error("There are no Products with that Id");
+                            }
+                            else logger.Error("Invalid product Id");
+                        }
+
+                        if (displayChoice == "2")
+                        {
+                            Console.WriteLine("Enter all or part of the product name");
+                            searchTerm = Console.ReadLine();
+
+                            var query = db.Products.Where(p => p.ProductName.Contains(searchTerm)).OrderBy(p => p.ProductName);
+
+                            Console.WriteLine($"{query.Count()} records returned");
+                            
+
+                            if (query.Count() == 1)
+                            {
+                                Console.Clear();
+                                Product.DisplayProduct(query.FirstOrDefault());
+                            }
+                                
+
+                            if (query.Count() > 1)
+                            {
+                                Console.WriteLine("{0,-8} {1,-50}", "ID", "ProductName");
+                                foreach(var item in query)
+                                {
+                                    Console.WriteLine("{0,-8} {1,-50}", item.ProductId, item.ProductName);
+                                }
+                                
+                                Console.WriteLine("\nEnter the Id number of the product you wish to display");
+                                if (int.TryParse(Console.ReadLine(), out int productId))
+                                {
+                                    if (db.Products.Any(p => p.ProductId == productId))
+                                    {
+                                        Console.Clear();
+                                        Product.DisplayProduct(db.Products.FirstOrDefault(p => p.ProductId == productId));
+                                    }
+                                    else logger.Error("There are no Products with that Id");
+                                }
+                                else logger.Error("Invalid product Id");
+                                
+                            }     
+                                                   
+                        }
+                        
+
                     }
                     Console.WriteLine();
 
