@@ -16,7 +16,7 @@ namespace NorthwindConsole.Models
             this.SaveChanges();
         }
 
-        public void EditCategory(Category UpdatedCategory)
+        public void UpdateCategory(Category UpdatedCategory)
         {
             Category category = this.Categories.Find(UpdatedCategory.CategoryId);
             category.CategoryName = UpdatedCategory.CategoryName;
@@ -30,7 +30,7 @@ namespace NorthwindConsole.Models
             this.SaveChanges();
         }
 
-        public void EditProduct(Product UpdatedProduct)
+        public void UpdateProduct(Product UpdatedProduct)
         {
             Product product = this.Products.Find(UpdatedProduct.ProductId);
             product.ProductName = UpdatedProduct.ProductName;
@@ -39,6 +39,8 @@ namespace NorthwindConsole.Models
             product.Discontinued = UpdatedProduct.Discontinued;
             SaveChanges();
         }
+
+        
     }
     
 }

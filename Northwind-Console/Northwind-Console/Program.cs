@@ -20,19 +20,20 @@ namespace NorthwindConsole
                 {
                     Console.WriteLine("1) Display Categories");
                     Console.WriteLine("2) Add Category");
-                    Console.WriteLine("3) Display Category and related products");
-                    Console.WriteLine("4) Display all Categories and their related products");
-                    Console.WriteLine("5) Add a new product");
-                    Console.WriteLine("6) Edit a product");
-                    Console.WriteLine("7) Display all products");
-                    Console.WriteLine("8) Display a single product");
+                    Console.WriteLine("3) Edit Category");
+                    Console.WriteLine("4) Display a specific category and related active products");
+                    Console.WriteLine("5) Display all categories and related products");
+                    Console.WriteLine("6) Add a new product");
+                    Console.WriteLine("7) Edit a product");
+                    Console.WriteLine("8) Display all products");
+                    Console.WriteLine("9) Display a single product");
                     Console.WriteLine("\"q\" to quit");
                     choice = Console.ReadLine();
                     Console.Clear();
                     logger.Info($"Option {choice} selected");
                     if (choice == "1")
                     {
-                        Category.ListCategories();
+                        Category.ListCategoriesWithDescription();
                     }
                     else if (choice == "2")
                     {
@@ -73,26 +74,33 @@ namespace NorthwindConsole
                     }
                     else if (choice == "3")
                     {
+                        Category.EditCategory();
+                    }
+                    else if (choice == "4")
+                    {
                         var db = new NorthwindContext();
                         var query = db.Categories.OrderBy(p => p.CategoryId);
-
-                        Console.WriteLine("Select the category whose products you want to display:");
                         foreach (var item in query)
                         {
                             Console.WriteLine($"{item.CategoryId}) {item.CategoryName}");
                         }
+                        Console.WriteLine("Select the category whose products you want to display:");
+                        
                         int id = int.Parse(Console.ReadLine());
                         Console.Clear();
                         logger.Info($"CategoryId {id} selected");
+
                         Category category = db.Categories.FirstOrDefault(c => c.CategoryId == id);
                         Console.WriteLine($"{category.CategoryName} - {category.Description}");
-                        foreach (Product p in category.Products)
+
+                        foreach (Product p in category.Products.Where(p => p.Discontinued != true))
                         {
                             Console.WriteLine(p.ProductName);
                         }
                     }
-                    else if (choice == "4")
+                    else if (choice == "5")
                     {
+                        //Display all Categories and their related active (not discontinued) product data (CategoryName, ProductName)
                         var db = new NorthwindContext();
                         var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
                         foreach (var item in query)
@@ -100,11 +108,12 @@ namespace NorthwindConsole
                             Console.WriteLine($"{item.CategoryName}");
                             foreach (Product p in item.Products)
                             {
-                                Console.WriteLine($"\t{p.ProductName}");
+                                if (p.Discontinued == false)
+                                    Console.WriteLine($"\t{p.ProductName}");
                             }
                         }
                     }
-                    else if (choice == "5")
+                    else if (choice == "6")
                     {
                         var db = new NorthwindContext();
                         var categoryQuery = db.Categories.OrderBy(p => p.CategoryId);
@@ -152,7 +161,7 @@ namespace NorthwindConsole
                         else logger.Error("Invalid Category Id");                     
 
                     }
-                    else if (choice == "6")
+                    else if (choice == "7")
                     {
                         var db = new NorthwindContext();
                         var query = db.Categories.Include("Products").OrderBy(p => p.CategoryId);
@@ -195,7 +204,7 @@ namespace NorthwindConsole
                         
                         
                     }
-                    else if (choice == "7")
+                    else if (choice == "8")
                     {
                         string displayChoice;
                         do
@@ -227,7 +236,7 @@ namespace NorthwindConsole
 
                     }
 
-                    else if (choice == "8")
+                    else if (choice == "9")
                     {
                         string searchTerm;
                         string displayChoice;

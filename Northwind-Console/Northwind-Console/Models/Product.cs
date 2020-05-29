@@ -24,8 +24,7 @@ namespace NorthwindConsole.Models
         
 
         public static void EditProduct(Product product, NorthwindContext db)
-        {
-            //var db = new NorthwindContext();                      
+        {                             
             string choice;
             Console.Clear();
             do
@@ -188,7 +187,7 @@ namespace NorthwindConsole.Models
                     //display current status TODO ask if want change status?
                     Console.WriteLine("Current product status: " + ((product.Discontinued) ? "Discontinued" : "Active"));
                 }
-                db.EditProduct(product);
+                db.UpdateProduct(product);
             }
             while (choice.ToLower() != "q") ;
             
