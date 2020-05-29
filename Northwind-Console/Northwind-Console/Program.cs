@@ -27,6 +27,8 @@ namespace NorthwindConsole
                     Console.WriteLine("7) Edit a product");
                     Console.WriteLine("8) Display all products");
                     Console.WriteLine("9) Display a single product");
+                    Console.WriteLine("10) Delete a category");
+                    Console.WriteLine("11) Delete a product");
                     Console.WriteLine("\"q\" to quit");
                     choice = Console.ReadLine();
                     Console.Clear();
@@ -305,6 +307,101 @@ namespace NorthwindConsole
                         }
                         
 
+                    }
+                    else if (choice == "10")
+                    {
+                        var db = new NorthwindContext();
+                        Category.ListCategories();
+                        Console.WriteLine("Enter the Category Id that you wish to delete");
+
+                        int id = int.Parse(Console.ReadLine());
+                        Console.Clear();
+                        logger.Info($"CategoryId {id} selected");
+
+                        Category category = db.Categories.FirstOrDefault(c => c.CategoryId == id);
+                        if (db.DeleteCategory(category))
+                            {
+                            logger.Info("Category {0} successfully deleted", category.CategoryName);
+                            }
+                        else
+                        {
+                            logger.Error("Unable to delete a category with associated products.");
+                            Console.WriteLine("You may not delete a category with associated products. In order to delete a category, all the associated products must first be placed in another category or deleted.");
+                        }                           
+
+
+                    }
+                    else if (choice == "11")
+                    {
+                        //Select and display product
+                        string searchTerm;
+                        string displayChoice;
+                        var db = new NorthwindContext();
+
+                        Console.Clear();
+                        Console.WriteLine("Chose how you wish to select a product:");
+                        Console.WriteLine("1) Enter Product Id");
+                        Console.WriteLine("2) Search for product name");
+
+                        displayChoice = Console.ReadLine();
+                        if (displayChoice == "1")
+                        {
+                            Console.WriteLine("Enter the Id number of the product you wish to delete");
+                            if (int.TryParse(Console.ReadLine(), out int productId))
+                            {
+                                if (db.Products.Any(p => p.ProductId == productId))
+                                {
+                                    Console.Clear();
+                                    //Product.DisplayProduct(db.Products.FirstOrDefault(p => p.ProductId == productId));
+                                    db.DeleteProduct(db.Products.FirstOrDefault(p => p.ProductId == productId));
+                                    logger.Info("Product Id {0} successfully deleted.", productId);
+                                }
+                                else logger.Error("There are no Products with that Id");
+                            }
+                            else logger.Error("Invalid product Id");
+                        }
+                        if (displayChoice == "2")
+                        {
+                            Console.WriteLine("Enter all or part of the product name");
+                            searchTerm = Console.ReadLine();
+
+                            var query = db.Products.Where(p => p.ProductName.Contains(searchTerm)).OrderBy(p => p.ProductName);
+
+                            Console.WriteLine($"{query.Count()} records returned");
+
+
+                            if (query.Count() == 1)
+                            {
+                                Console.Clear();
+                                Product.DisplayProduct(query.FirstOrDefault());
+                                db.DeleteProduct(query.FirstOrDefault());
+                                logger.Info("Product id {0} successfully deleted", query.FirstOrDefault().ProductId);
+                            }
+
+
+                            if (query.Count() > 1)
+                            {
+                                Console.WriteLine("{0,-8} {1,-50}", "ID", "ProductName");
+                                foreach (var item in query)
+                                {
+                                    Console.WriteLine("{0,-8} {1,-50}", item.ProductId, item.ProductName);
+                                }
+
+                                Console.WriteLine("\nEnter the Id number of the product you wish to delete");
+                                if (int.TryParse(Console.ReadLine(), out int productId))
+                                {
+                                    if (db.Products.Any(p => p.ProductId == productId))
+                                    {
+                                        Console.Clear();
+                                        Product.DisplayProduct(db.Products.FirstOrDefault(p => p.ProductId == productId));
+                                    }
+                                    else logger.Error("There are no Products with that Id");
+                                }
+                                else logger.Error("Invalid product Id");
+
+                            }
+
+                        }
                     }
                     Console.WriteLine();
 

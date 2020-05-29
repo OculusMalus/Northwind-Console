@@ -24,6 +24,18 @@ namespace NorthwindConsole.Models
             this.SaveChanges();
         }
 
+        public bool DeleteCategory(Category category)
+        {
+            if (category.Products.Count == 0)
+            {
+                Categories.Remove(category);
+                SaveChanges();
+                return true;
+            }
+            else return false;
+               
+        }
+
         public void AddProduct(Product product)
         {
             this.Products.Add(product);
@@ -40,7 +52,13 @@ namespace NorthwindConsole.Models
             SaveChanges();
         }
 
-        
+        public void DeleteProduct(Product product)
+        {
+            Products.Remove(product);
+            SaveChanges();                
+        }
+
+
     }
     
 }

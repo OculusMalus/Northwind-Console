@@ -209,5 +209,7 @@ namespace NorthwindConsole.Models
             Console.WriteLine("{0,-22} {1,-50}", "10) Status:", (product.Discontinued) ? "Discontinued" : "Active");
             
         }
+
+       
     }
 }
