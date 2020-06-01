@@ -186,6 +186,7 @@ namespace NorthwindConsole.Models
                 {
                     //display current status TODO ask if want change status?
                     Console.WriteLine("Current product status: " + ((product.Discontinued) ? "Discontinued" : "Active"));
+                   
                 }
                 db.UpdateProduct(product);
             }
@@ -202,7 +203,6 @@ namespace NorthwindConsole.Models
             Console.WriteLine("{0,-22} {1,-50}", "4) Supplier:", product.Supplier.CompanyName);
             Console.WriteLine("{0,-22} {1,-50}", "5) Quantity Per Unit:", product.QuantityPerUnit);
             Console.WriteLine("{0,-22} {1,-50:C2}", "6) Unit Price:", product.UnitPrice);
-            //TODO format unit price
             Console.WriteLine("{0,-22} {1,-50}", "7) Units in Stock:", product.UnitsInStock);
             Console.WriteLine("{0,-22} {1,-50}", "8) Units on Order:", product.UnitsOnOrder);
             Console.WriteLine("{0,-22} {1,-50}", "9) Reorder Level:", product.ReorderLevel);

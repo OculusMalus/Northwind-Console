@@ -58,6 +58,12 @@ namespace NorthwindConsole.Models
             SaveChanges();                
         }
 
+        public void AddSupplier(Supplier supplier)
+        {
+            this.Suppliers.Add(supplier);
+            this.SaveChanges();
+        }
+
 
     }
     

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using NLog;
 using NorthwindConsole.Models;
@@ -25,7 +26,7 @@ namespace NorthwindConsole
                     Console.WriteLine("5) Display all categories and related products");
                     Console.WriteLine("6) Add a new product");
                     Console.WriteLine("7) Edit a product");
-                    Console.WriteLine("8) Display all products");
+                    Console.WriteLine("8) Display products");
                     Console.WriteLine("9) Display a single product");
                     Console.WriteLine("10) Delete a category");
                     Console.WriteLine("11) Delete a product");
@@ -134,22 +135,26 @@ namespace NorthwindConsole
                             {
                                 
                                 Console.Clear();
-                                Console.WriteLine("Select a product Supplier");
+                                Console.WriteLine("Enter a product Supplier or \"add\" to enter a new supplier.");
                                 foreach (var item in supplierQuery)
                                 {
                                     Console.WriteLine($"{item.SupplierId}) {item.CompanyName}");
                                 }
-
+                                var supplier = Console.ReadLine();
                                 //check for valid supplier
-                                if (int.TryParse(Console.ReadLine(), out int SupplierId))
+                                if (supplier.ToLower() == "add")
                                 {
-                                    if (db.Suppliers.Any(s => s.SupplierId == SupplierId))
+                                    Supplier.NewSupplier();                                    
+                                }
+                                else if (int.TryParse(supplier, out int supplierId))
+                                {
+                                    if (db.Suppliers.Any(s => s.SupplierId == supplierId))
                                     {
                                         Product product = InputProduct(db);
                                         product.CategoryId = CategoryId;
                                         if (product != null)
                                         {
-                                            product.SupplierId = SupplierId;
+                                            product.SupplierId = supplierId;
                                             db.AddProduct(product);
                                             logger.Info("Product added - {title}", product.ProductName);
                                         }
@@ -195,7 +200,6 @@ namespace NorthwindConsole
                                     if (db.Products.Any(p => p.ProductId == ProductId))
                                     {
                                         Product product = db.Products.FirstOrDefault(p => p.ProductId == ProductId);
-                                        //TODO call the edit Product Method
                                         Product.EditProduct(product, db);
                                     }
                                 }
@@ -209,35 +213,54 @@ namespace NorthwindConsole
                     else if (choice == "8")
                     {
                         string displayChoice;
-                        do
+                        var db = new NorthwindContext();
+                        
+                        Console.Clear();
+                        Console.WriteLine("1) Display ALL products");
+                        Console.WriteLine("2) Display only DISCONTINUED products");
+                        Console.WriteLine("3) Display only ACTIVE products");
+                        displayChoice = Console.ReadLine();
+                        logger.Info($"Option {choice} selected");
+
+                        if (displayChoice == "1")
                         {
-                            Console.Clear();
-                            Console.WriteLine("1) Display ALL products");
-                            Console.WriteLine("2) Display only DISCONTINUED products");
-                            Console.WriteLine("3) Display only ACTIVE products");
-                            displayChoice = Console.ReadLine();
-                            
-                            if (displayChoice == "1")
-                            {
-                            //TODO 
-                            }
+                            logger.Info("{0} records returned", db.Products.Count());
+                            Console.WriteLine("ALL Products (Discontinued products in Red)\n__________________________________________________");
 
-                            if (displayChoice == "2")
+                            foreach ( var item in db.Products)
                             {
-                                //TODO filter product list
+                                Console.BackgroundColor = item.Discontinued ? ConsoleColor.Red : ConsoleColor.Black;
+                                Console.WriteLine(item.ProductName);
                             }
+                            Console.ResetColor();
+                        }
 
-                            if (displayChoice == "3")
+                        if (displayChoice == "2")
+                        {
+                            var query = db.Products.Where(p => p.Discontinued == true);
+                            logger.Info("{0} records returned", query.Count());
+                            Console.WriteLine("ALL Discontinued Products\n___________________________");
+                                                        
+                            foreach (var item in query)
                             {
-                                //TODO
+                                Console.WriteLine(item.ProductName);
                             }
                         }
-                        while (displayChoice.ToLower() != "q"); 
-                        
-                        
+
+                        if (displayChoice == "3")
+                        {
+                            var query = db.Products.Where(p => p.Discontinued == false);
+                            logger.Info("{0} records returned", query.Count());
+                            Console.WriteLine("ALL Active Products\n___________________________");
+
+                            foreach (var item in query)
+                            {
+                                Console.WriteLine(item.ProductName);
+                            }
+                        }
+                                               
 
                     }
-
                     else if (choice == "9")
                     {
                         string searchTerm;
