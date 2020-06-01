@@ -6,6 +6,7 @@ using System.Linq;
 using NLog;
 using NorthwindConsole.Models;
 
+
 namespace NorthwindConsole
 {
     class MainClass
@@ -36,7 +37,22 @@ namespace NorthwindConsole
                     logger.Info($"Option {choice} selected");
                     if (choice == "1")
                     {
-                        Category.ListCategoriesWithDescription();
+                        //Category.ListCategoriesWithDescription();
+
+                        var table = new ConsoleTable();
+                        var db = new NorthwindContext();
+
+                        table.SetHeaders("Name", "Descripion");
+                        foreach (var item in db.Categories)
+                        {
+                            table.AddRow(item.CategoryName, item.Description);
+                        }
+                        
+                        Console.WriteLine(table.ToString());
+
+
+
+
                     }
                     else if (choice == "2")
                     {
@@ -225,7 +241,7 @@ namespace NorthwindConsole
                         if (displayChoice == "1")
                         {
                             logger.Info("{0} records returned", db.Products.Count());
-                            Console.WriteLine("ALL Products (Discontinued products in Red)\n__________________________________________________");
+                            Console.WriteLine("ALL Products (Discontinued products in Red)");
 
                             foreach ( var item in db.Products)
                             {
@@ -239,7 +255,7 @@ namespace NorthwindConsole
                         {
                             var query = db.Products.Where(p => p.Discontinued == true);
                             logger.Info("{0} records returned", query.Count());
-                            Console.WriteLine("ALL Discontinued Products\n___________________________");
+                            Console.WriteLine("ALL Discontinued Products");
                                                         
                             foreach (var item in query)
                             {
@@ -251,7 +267,7 @@ namespace NorthwindConsole
                         {
                             var query = db.Products.Where(p => p.Discontinued == false);
                             logger.Info("{0} records returned", query.Count());
-                            Console.WriteLine("ALL Active Products\n___________________________");
+                            Console.WriteLine("ALL Active Products");
 
                             foreach (var item in query)
                             {
